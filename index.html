@@ -12,6 +12,10 @@
       box-sizing: border-box;
     }
 
+    html {
+      scroll-behavior: smooth;
+    }
+
     :root {
       --bg: #f3f4ef;
       --panel: #f8f8f2;
@@ -82,10 +86,13 @@
     }
 
     .nav-item {
+      display: block;
       padding: 14px 16px;
       border-radius: 16px;
       background: rgba(255,255,255,0.10);
       font-size: 15px;
+      color: white;
+      text-decoration: none;
     }
 
     .nav-item.active {
@@ -475,11 +482,11 @@
         </div>
 
         <div class="nav">
-          <div class="nav-item active">Dashboard</div>
-          <div class="nav-item">Live View</div>
-          <div class="nav-item">Tomato Results</div>
-          <div class="nav-item">Reports</div>
-          <div class="nav-item">Alerts</div>
+          <a href="#dashboard" class="nav-item active">Dashboard</a>
+          <a href="#live" class="nav-item">Live View</a>
+          <a href="#results" class="nav-item">Tomato Results</a>
+          <a href="#reports" class="nav-item">Reports</a>
+          <a href="#alerts" class="nav-item">Alerts</a>
         </div>
       </div>
 
@@ -509,7 +516,7 @@
         </div>
       </div>
 
-      <section class="grid-3">
+      <section id="dashboard" class="grid-3">
         <div class="card">
           <div class="label">Temperature</div>
           <div class="value" id="tempValue">--°C</div>
@@ -529,7 +536,7 @@
         </div>
       </section>
 
-      <section class="grid-main">
+      <section id="live" class="grid-main">
         <div class="stack">
           <div class="card prediction-card">
             <div>
@@ -557,7 +564,7 @@
             </div>
           </div>
 
-          <div class="card action-card">
+          <div class="card action-card" id="alerts">
             <h3>Recommended Action</h3>
             <p>This suggestion helps the vendor know what to do next.</p>
             <div class="action-box" id="actionText">Waiting...</div>
@@ -571,7 +578,7 @@
             <div class="small-note" style="margin-top:12px;">Latest captured or uploaded tomato image</div>
           </div>
 
-          <div class="card metrics">
+          <div class="card metrics" id="reports">
             <div class="metric">
               <span>Current Result</span>
               <strong id="metricStatus">Waiting...</strong>
@@ -588,7 +595,7 @@
         </div>
       </section>
 
-      <section class="bottom-grid">
+      <section id="results" class="bottom-grid">
         <div class="card">
           <div class="label">Why This Helps</div>
           <div class="small-note">
@@ -627,8 +634,16 @@
     const captureCommandRef = ref(db, "smartfresh/commands/capture");
 
     function formatTime(ts) {
-      if (!ts) return "--";
-      return new Date(ts).toLocaleString();
+      if (!ts) return new Date().toLocaleString();
+
+      const savedTime = new Date(ts);
+      const now = new Date();
+
+      if (savedTime.getFullYear() < 2025) {
+        return now.toLocaleString();
+      }
+
+      return savedTime.toLocaleString();
     }
 
     function getShelfLife(label) {
@@ -771,6 +786,13 @@
     overlay.addEventListener("click", () => {
       sidebar.classList.remove("mobile-open");
       overlay.classList.remove("show");
+    });
+
+    document.querySelectorAll(".nav-item").forEach(item => {
+      item.addEventListener("click", () => {
+        sidebar.classList.remove("mobile-open");
+        overlay.classList.remove("show");
+      });
     });
 
     onValue(latestRef, (snapshot) => {
